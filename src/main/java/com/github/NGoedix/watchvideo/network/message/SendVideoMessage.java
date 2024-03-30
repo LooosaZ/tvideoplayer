@@ -37,8 +37,8 @@ public class SendVideoMessage implements IMessage<SendVideoMessage> {
 
     @Override
     public SendVideoMessage decode(FriendlyByteBuf buffer) {
-        int urlLength = buffer.readInt();
-        String url = String.valueOf(buffer.readCharSequence(urlLength, StandardCharsets.UTF_8));
+        int l = buffer.readInt();
+        String url = String.valueOf(buffer.readCharSequence(l, StandardCharsets.UTF_8));
         int volume = buffer.readInt();
         boolean controlBlocked = buffer.readBoolean();
         return new SendVideoMessage(url, volume, controlBlocked);

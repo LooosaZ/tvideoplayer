@@ -41,6 +41,30 @@ public class Vec3d extends VecNd<Vec3d> {
         };
     }
 
+    public void set(double x, double y, double z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    public void set(Axis axis, double value) {
+        switch (axis) {
+            case X -> this.x = value;
+            case Y -> this.y = value;
+            case Z -> this.z = value;
+        }
+
+    }
+
+    public void set(int dim, double value) {
+        switch (dim) {
+            case 0 -> this.x = value;
+            case 1 -> this.y = value;
+            case 2 -> this.z = value;
+        }
+
+    }
+
     public int dimensions() {
         return 3;
     }

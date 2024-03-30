@@ -8,6 +8,8 @@ public abstract class VecNd<T extends VecNd> {
 
     public abstract double get(int var1);
 
+    public abstract void set(int var1, double var2);
+
     public abstract int dimensions();
 
     public abstract void add(T var1);

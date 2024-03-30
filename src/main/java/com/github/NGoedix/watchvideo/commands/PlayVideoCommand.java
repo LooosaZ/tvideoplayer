@@ -1,5 +1,6 @@
 package com.github.NGoedix.watchvideo.commands;
 
+import com.github.NGoedix.watchvideo.Reference;
 import com.github.NGoedix.watchvideo.commands.arguments.SymbolStringArgumentType;
 import com.github.NGoedix.watchvideo.network.PacketHandler;
 import com.github.NGoedix.watchvideo.network.message.SendVideoMessage;
@@ -13,14 +14,14 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Collection;
 
 public class PlayVideoCommand {
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher){
         dispatcher.register(Commands.literal("tvideoplayer")
                 .requires(source -> source.hasPermission(2))
                 .then(Commands.argument("target", EntityArgument.players())
@@ -33,13 +34,18 @@ public class PlayVideoCommand {
 
     private static int execute(CommandContext<CommandSourceStack> command, boolean control){
         Collection<ServerPlayer> players;
-
         try {
             players = EntityArgument.getPlayers(command, "target");
         } catch (CommandSyntaxException e) {
-            command.getSource().sendFailure(new TextComponent("Error with target parameter."));
+            command.getSource().sendFailure(Component.literal("Error with target parameter."));
             return Command.SINGLE_SUCCESS;
         }
+
+        if (control)
+            Reference.LOGGER.info("Blocked: " + BoolArgumentType.getBool(command, "control_blocked"));
+        else
+            Reference.LOGGER.info("Not blocked");
+
         for (ServerPlayer player : players) {
             PacketHandler.sendTo(new SendVideoMessage(
                     StringArgumentType.getString(command, "url"),

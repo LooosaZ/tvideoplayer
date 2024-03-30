@@ -1,25 +1,26 @@
 package com.github.NGoedix.watchvideo.client.gui;
 
-import com.github.NGoedix.watchvideo.Reference;
 import com.github.NGoedix.watchvideo.VideoPlayer;
+import com.github.NGoedix.watchvideo.Reference;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.*;
 import me.lib720.caprica.vlcj.player.base.State;
 import me.srrapero720.watermedia.api.WaterMediaAPI;
 import me.srrapero720.watermedia.api.image.ImageAPI;
 import me.srrapero720.watermedia.api.image.ImageRenderer;
 import me.srrapero720.watermedia.api.player.SyncVideoPlayer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraftforge.fml.loading.FMLLoader;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -62,8 +63,7 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     }
 
     public VideoScreen(String url, int volume, boolean controlBlocked) {
-        super(new DummyContainer(), Objects.requireNonNull(Minecraft.getInstance().player).getInventory(), new TextComponent(""));
-
+        super(new DummyContainer(), Objects.requireNonNull(Minecraft.getInstance().player).getInventory(), Component.literal(""));
         Minecraft minecraft = Minecraft.getInstance();
         Minecraft.getInstance().getSoundManager().pause();
 
@@ -71,7 +71,7 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
         this.controlBlocked = controlBlocked;
 
         this.player = new SyncVideoPlayer(null, minecraft, MemoryTracker::create);
-        Reference.LOGGER.info("Playing video (" + url + " with volume: " + (int) (Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER) * volume));
+        Reference.LOGGER.info("Playing video (" + (!controlBlocked ? "not" : "") + "blocked) (" + url + " with volume: " + (int) (Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER) * volume));
 
         player.setVolume((int) (Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER) * volume));
         player.start(url);
@@ -79,10 +79,10 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     }
 
     @Override
-    protected void renderLabels(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY) {}
+    protected void renderLabels(@NotNull GuiGraphics pPoseStack, int pMouseX, int pMouseY) {}
 
     @Override
-    protected void renderBg(@NotNull PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
+    protected void renderBg(@NotNull GuiGraphics guiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
         if (!started) return;
 
         videoTexture = player.prepareTexture();
@@ -92,8 +92,8 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
                 closing = true;
                 if (closingOnTick == -1) closingOnTick = tick + 20;
                 if (tick >= closingOnTick) fadeLevel = Math.max(fadeLevel - (pPartialTick / 8), 0.0f);
-                renderBlackBackground(pPoseStack);
-                renderIcon(pPoseStack, ImageAPI.loadingGif());
+                renderBlackBackground(guiGraphics);
+                renderIcon(guiGraphics, ImageAPI.loadingGif());
                 if (fadeLevel == 0) onClose();
                 return;
             }
@@ -104,39 +104,38 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
 
         // RENDER VIDEO
         if (playingState || player.isStopped() || player.isEnded()) {
-            renderTexture(pPoseStack, videoTexture);
+            renderTexture(guiGraphics, videoTexture);
         }
 
         // BLACK SCREEN
         if (!paused)
-            renderBlackBackground(pPoseStack);
+            renderBlackBackground(guiGraphics);
 
         // RENDER GIF
         if (!player.isPlaying() || !player.getRawPlayerState().equals(State.PLAYING)) {
             if (player.isPaused() && player.getRawPlayerState().equals(State.PAUSED)) {
-                renderIcon(pPoseStack, VideoPlayer.pausedImage());
+                renderIcon(guiGraphics, VideoPlayer.pausedImage());
             } else {
-                renderIcon(pPoseStack, ImageAPI.loadingGif());
+                renderIcon(guiGraphics, ImageAPI.loadingGif());
             }
         }
 
         // DEBUG RENDERING
         if (!FMLLoader.isProduction()) {
-            draw(pPoseStack, String.format("State: %s", player.getRawPlayerState().name()), getHeightCenter(-12));
-            draw(pPoseStack, String.format("Time: %s (%s) / %s (%s)", FORMAT.format(new Date(player.getTime())), player.getTime(), FORMAT.format(new Date(player.getDuration())), player.getDuration()), getHeightCenter(0));
-            draw(pPoseStack, String.format("Media Duration: %s (%s)", FORMAT.format(new Date(player.getMediaInfoDuration())), player.getMediaInfoDuration()), getHeightCenter(12));
+            draw(guiGraphics, String.format("State: %s", player.getRawPlayerState().name()), getHeightCenter(-12));
+            draw(guiGraphics, String.format("Time: %s (%s) / %s (%s)", FORMAT.format(new Date(player.getTime())), player.getTime(), FORMAT.format(new Date(player.getDuration())), player.getDuration()), getHeightCenter(0));
+            draw(guiGraphics, String.format("Media Duration: %s (%s)", FORMAT.format(new Date(player.getMediaInfoDuration())), player.getMediaInfoDuration()), getHeightCenter(12));
         }
     }
 
-    private void renderTexture(PoseStack stack, int texture) {
-        if (!started) return;
+    private void renderTexture(GuiGraphics guiGraphics, int texture) {
         if (player.getDimensions() == null) return; // Checking if video available
 
         RenderSystem.enableBlend();
-        fill(stack, 0, 0, width, height, WaterMediaAPI.math_colorARGB(255, 0, 0, 0));
+        guiGraphics.fill(0, 0, width, height, WaterMediaAPI.math_colorARGB(255, 0, 0, 0));
         RenderSystem.disableBlend();
 
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, texture);
 
         // Get video dimensions
@@ -166,14 +165,21 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
         RenderSystem.enableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-        GuiComponent.blit(stack, xOffset, yOffset, 0.0F, 0.0F, renderWidth, renderHeight, renderWidth, renderHeight);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+        Matrix4f matrix4f = guiGraphics.pose().last().pose();
+        BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        bufferBuilder.vertex(matrix4f, (float)xOffset, (float)yOffset, (float)0).uv(0, 0).endVertex();
+        bufferBuilder.vertex(matrix4f, (float)xOffset, (float)(yOffset + renderHeight), (float)0).uv(0, 1).endVertex();
+        bufferBuilder.vertex(matrix4f, (float)(xOffset + renderWidth), (float)(yOffset + renderHeight), (float)0).uv(1, 1).endVertex();
+        bufferBuilder.vertex(matrix4f, (float)(xOffset + renderWidth), (float)yOffset, (float)0).uv(1, 0).endVertex();
+        BufferUploader.drawWithShader(bufferBuilder.end());
         RenderSystem.disableBlend();
     }
 
-
-    private void renderBlackBackground(PoseStack stack) {
+    private void renderBlackBackground(GuiGraphics stack) {
         RenderSystem.enableBlend();
-        fill(stack, 0, 0, width, height, WaterMediaAPI.math_colorARGB((int) (fadeLevel * 255), 0, 0, 0));
+        stack.fill(0, 0, width, height, WaterMediaAPI.math_colorARGB((int) (fadeLevel * 255), 0, 0, 0));
         RenderSystem.disableBlend();
     }
 
@@ -181,19 +187,26 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
         return (height / 2) + offset;
     }
 
-    private void renderIcon(PoseStack stack, ImageRenderer image) {
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+    private void renderIcon(GuiGraphics guiGraphics, ImageRenderer image) {
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, image.texture(tick, 1, true));
 
         RenderSystem.enableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        GuiComponent.blit(stack, width - 36, height - 36 , 0, 0, 36, 36, 28, 28);
+        Matrix4f matrix4f = guiGraphics.pose().last().pose();
+        BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        bufferBuilder.vertex(matrix4f, (float)width - 36, (float)height - 36, (float)0).uv(0, 0).endVertex();
+        bufferBuilder.vertex(matrix4f, (float)width - 36, (float)height, (float)0).uv(0, 1).endVertex();
+        bufferBuilder.vertex(matrix4f, (float)width, (float)height, (float)0).uv(1, 1).endVertex();
+        bufferBuilder.vertex(matrix4f, (float)width, (float)height - 36, (float)0).uv(1, 0).endVertex();
+        BufferUploader.drawWithShader(bufferBuilder.end());
         RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
         RenderSystem.disableBlend();
     }
 
-    private void draw(PoseStack stack, String text, int height) {
-        drawString(stack, Minecraft.getInstance().font, text, 5, height, 0xffffff);
+    private void draw(GuiGraphics stack, String text, int height) {
+        stack.drawString(Minecraft.getInstance().font, text, 5, height, 0xffffff);
     }
 
     @Override
@@ -217,9 +230,9 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
                 volume = 100;
                 float masterVolume = Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER);
                 if (masterVolume <= 0.95)
-                    Minecraft.getInstance().options.setSoundCategoryVolume(SoundSource.MASTER, masterVolume + 0.05F);
+                    Minecraft.getInstance().options.getSoundSourceOptionInstance(SoundSource.MASTER).set((double) (masterVolume + 0.05F));
                 else
-                    Minecraft.getInstance().options.setSoundCategoryVolume(SoundSource.MASTER, 1);
+                    Minecraft.getInstance().options.getSoundSourceOptionInstance(SoundSource.MASTER).set(1.0);
             }
 
             float actualVolume = Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER);

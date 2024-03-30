@@ -1,9 +1,9 @@
 package com.github.NGoedix.watchvideo;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 
 public class Reference {
     public static final String MOD_ID = "videoplayer";
-    public static final Logger LOGGER = LogManager.getLogger(Reference.MOD_ID);
+    public static final Logger LOGGER = LogUtils.getLogger();
 }

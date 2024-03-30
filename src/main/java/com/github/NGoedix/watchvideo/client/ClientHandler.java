@@ -17,11 +17,11 @@ public class ClientHandler {
         if (be instanceof TVBlockEntity tv) {
             tv.setPlaying(playing);
             tv.setTick(tick);
-            if (tv.requestDisplay() != null) {
+            if (tv.display != null) {
                 if (playing)
-                    tv.requestDisplay().resume(tv.getUrl(), tv.getVolume(), tv.minDistance, tv.maxDistance, tv.isPlaying(), tv.isLoop(), tv.getTick());
+                    tv.display.resume(tv.getUrl(), tv.getVolume(), tv.minDistance, tv.maxDistance, tv.isPlaying(), tv.isLoop(), tv.getTick());
                 else
-                    tv.requestDisplay().pause(tv.getUrl(), tv.getVolume(), tv.minDistance, tv.maxDistance, tv.isPlaying(), tv.isLoop(), tv.getTick());
+                    tv.display.pause(tv.getUrl(), tv.getVolume(), tv.minDistance, tv.maxDistance, tv.isPlaying(), tv.isLoop(), tv.getTick());
             }
         }
     }

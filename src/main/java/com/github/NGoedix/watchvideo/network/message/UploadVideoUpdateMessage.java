@@ -1,5 +1,6 @@
 package com.github.NGoedix.watchvideo.network.message;
 
+import com.github.NGoedix.watchvideo.Reference;
 import com.github.NGoedix.watchvideo.VideoPlayer;
 import com.github.NGoedix.watchvideo.block.entity.custom.TVBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -50,13 +51,13 @@ public class UploadVideoUpdateMessage implements IMessage<UploadVideoUpdateMessa
     public void handle(UploadVideoUpdateMessage message, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
-            if (player == null) return;
-            if (player.level.getBlockEntity(message.blockPos) instanceof TVBlockEntity tvBlockEntity) {
+            if (player.level().getBlockEntity(message.blockPos) instanceof TVBlockEntity tvBlockEntity) {
                 tvBlockEntity.setBeingUsed(new UUID(0, 0));
-                if (message.volume == -1) // NO CHANGES - NO UPDATE
+                if (message.volume == -1) // NO UPDATE
                     return;
 
                 tvBlockEntity.setUrl(message.url);
+                Reference.LOGGER.info("Received url: " + message.url);
                 tvBlockEntity.setVolume(message.volume);
                 tvBlockEntity.setLoop(message.loop);
                 tvBlockEntity.setPlaying(message.isPlaying);

@@ -1,10 +1,10 @@
 package com.github.NGoedix.watchvideo.util.math;
 
+
 public class Vec3f extends VecNf<Vec3f> {
     public float x;
     public float y;
     public float z;
-
 
     public Vec3f(float x, float y, float z) {
         this.x = x;
@@ -35,6 +35,29 @@ public class Vec3f extends VecNf<Vec3f> {
         };
     }
 
+    public void set(float x, float y, float z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    public void set(int dim, float value) {
+        switch (dim) {
+            case 0 -> this.x = value;
+            case 1 -> this.y = value;
+            case 2 -> this.z = value;
+        }
+
+    }
+
+    public void set(Axis axis, float value) {
+        switch (axis) {
+            case X -> this.x = value;
+            case Y -> this.y = value;
+            case Z -> this.z = value;
+        }
+    }
+
     public int dimensions() {
         return 3;
     }
@@ -55,9 +78,5 @@ public class Vec3f extends VecNf<Vec3f> {
 
     public double length() {
         return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
-    }
-
-    public float dot(Vec3f vec) {
-        return this.x * vec.x + this.y * vec.y + this.z * vec.z;
     }
 }

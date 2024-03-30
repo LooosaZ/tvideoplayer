@@ -7,4 +7,5 @@ public class CommonHandler {
     public static void setup() {
         PacketHandler.init();
     }
+
 }

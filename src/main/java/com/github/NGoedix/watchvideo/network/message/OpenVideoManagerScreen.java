@@ -1,6 +1,5 @@
 package com.github.NGoedix.watchvideo.network.message;
 
-import com.github.NGoedix.watchvideo.VideoPlayer;
 import com.github.NGoedix.watchvideo.client.ClientHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;

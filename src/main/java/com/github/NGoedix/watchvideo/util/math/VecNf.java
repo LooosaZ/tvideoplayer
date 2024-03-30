@@ -10,7 +10,13 @@ public abstract class VecNf<T extends VecNf> {
         return this.get(axis.ordinal());
     }
 
+    public void set(Axis axis, float value) {
+        this.set(axis.ordinal(), value);
+    }
+
     public abstract float get(int var1);
+
+    public abstract void set(int var1, float var2);
 
     public abstract int dimensions();
 

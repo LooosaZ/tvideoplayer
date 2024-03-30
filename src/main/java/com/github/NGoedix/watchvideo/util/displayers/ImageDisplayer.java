@@ -40,3 +40,4 @@ public class ImageDisplayer implements IDisplay {
         return new Dimension(picture.width, picture.height);
     }
 }
+

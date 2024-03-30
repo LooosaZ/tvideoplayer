@@ -65,5 +65,6 @@ public enum BoxCorner {
         for (BoxCorner corner : var0) {
             corner.init();
         }
+
     }
 }

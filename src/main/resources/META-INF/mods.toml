@@ -1,18 +1,18 @@
 modLoader="javafml"
-loaderVersion="[38,)"
+loaderVersion="[44,)"
 license="GPLv3"
 [[mods]]
 modId="videoplayer"
-version="2.6.21"
-displayName="TVideoPlayer"
-authors="Goedix"
+version="1.0.1-1.20.x"
+displayName="tvideoplayer"
+authors="Goedix, LoosaZ"
 description='''
-This mod allows the playback of videos in the user interface (GUI), you can play videos for all connected users or for a specific user. Fork by LoosaZ
+This mod allows the playback of videos in the user interface (GUI), you can play videos for all connected users or for a specific user.
 '''
 credits="Thanks J-RAP for the help with the API"
 [[dependencies.videoplayer]]
-    modId="watermedia"
-    mandatory=true
-    versionRange="[2.0,)"
-    ordering="AFTER"
-    side="CLIENT"
+modId="watermedia"
+mandatory=true
+versionRange="[0,)"
+ordering="AFTER"
+side="CLIENT"

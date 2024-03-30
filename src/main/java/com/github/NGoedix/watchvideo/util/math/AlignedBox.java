@@ -1,7 +1,7 @@
 package com.github.NGoedix.watchvideo.util.math;
 
-import com.mojang.math.Vector3d;
 import net.minecraft.core.Vec3i;
+import org.joml.Vector3d;
 
 public class AlignedBox {
     public float minX;
@@ -43,6 +43,15 @@ public class AlignedBox {
 
     public String toString() {
         return "cube[" + this.minX + ", " + this.minY + ", " + this.minZ + " -> " + this.maxX + ", " + this.maxY + ", " + this.maxZ + "]";
+    }
+
+    public void set(float x, float y, float z, float x2, float y2, float z2) {
+        this.minX = Math.min(x, x2);
+        this.minY = Math.min(y, y2);
+        this.minZ = Math.min(z, z2);
+        this.maxX = Math.max(x, x2);
+        this.maxY = Math.max(y, y2);
+        this.maxZ = Math.max(z, z2);
     }
 
     public float get(Facing facing) {

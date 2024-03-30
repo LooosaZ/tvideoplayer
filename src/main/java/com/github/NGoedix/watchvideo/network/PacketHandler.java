@@ -1,7 +1,7 @@
 package com.github.NGoedix.watchvideo.network;
 
-import com.github.NGoedix.watchvideo.Reference;
 import com.github.NGoedix.watchvideo.network.message.*;
+import com.github.NGoedix.watchvideo.Reference;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -45,7 +45,7 @@ public class PacketHandler {
     }
 
     public static <MSG> void sendTo(MSG msg, Player player) {
-        INSTANCE.sendTo(msg, ((ServerPlayer)player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+        INSTANCE.sendTo(msg, ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
 
     public static <MSG> void sendToClient(MSG message, Level level, BlockPos pos) {
@@ -67,4 +67,5 @@ public class PacketHandler {
     public static <MSG> void sendToServer(MSG msg) {
         INSTANCE.sendToServer(msg);
     }
+
 }

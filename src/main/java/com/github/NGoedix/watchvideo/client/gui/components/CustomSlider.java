@@ -2,10 +2,6 @@ package com.github.NGoedix.watchvideo.client.gui.components;
 
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-
-import java.util.function.Consumer;
 
 public class CustomSlider extends AbstractSliderButton {
 
@@ -20,7 +16,7 @@ public class CustomSlider extends AbstractSliderButton {
     @Override
     protected void updateMessage() {
         String formattedValue = String.format("%d", (int) (value * 100f));
-        setMessage(new TranslatableComponent("customslider.videoplayer.value", this.text, formattedValue));
+        setMessage(Component.translatable("customslider.videoplayer.value", this.text, formattedValue));
     }
 
     @Override
